@@ -1,8 +1,31 @@
 # London LHD Centre v2: project brief
 
-The next version of londonlhdcentre.com, for AutoGalleria's client London LHD
-Centre. v1 is live (since 10 November 2026) and keeps running from
-`C:\Users\lhdca\Projects\londonlhd` until v2 is ready to replace it.
+A newer version of the londonlhdcentre.com site, built so AutoGalleria can use
+it for London LHD Centre **or adapt it for a different company name**. v1 is
+live (since 10 November 2026) and keeps running from
+`C:\Users\lhdca\Projects\londonlhd`.
+
+**Timing:** v2 might replace v1, in whole or in part, in the new year (2027).
+That isn't a commitment; v2 has to stand on its own either way.
+
+## Built to rebrand
+
+London LHD Centre is the first brand, not part of the code:
+
+- **One brand file** holds the company name, logo, colours, fonts, contact
+  details (phone, WhatsApp, email, address, map), opening hours, social links
+  and domain.
+- **Copy and facts are content, not templates:** services, "40 years", make
+  texts, FAQs and legal pages are filled per brand. Nothing like "left hand
+  drive" is baked in, so a dealer with a different niche can use it.
+- **Theming** through design tokens (CSS variables), so a new brand changes
+  colours and fonts without touching pages.
+- **Optional features** each brand switches on or off: sell form, cars wanted,
+  sold gallery, legacy redirects, blog.
+- **No shared data:** each brand has its own database, photos, `.env` and
+  email sender.
+- A demo brand with a made-up name tests the switch, so nothing quietly depends
+  on London LHD Centre.
 
 ## Starting points
 
@@ -30,7 +53,10 @@ Centre. v1 is live (since 10 November 2026) and keeps running from
 5. **Wait for v1 data?** The sell form and enquiry pop-up reviews are due
    mid-December to mid-January; their results should shape the v2 forms.
 
-## Fixed facts (from v1)
+6. **Name:** a product name for the template, separate from London LHD
+   Centre (the folder name can change).
+
+## Fixed facts for the London LHD Centre brand (from v1)
 
 - Copy: "left hand drive" with no hyphens; no full stops on headings; only
   client-confirmed facts (40 years; no HPI checks).
