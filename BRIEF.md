@@ -42,10 +42,12 @@ London LHD Centre is the first brand, not part of the code:
 
 ## Decisions to make before building
 
-1. **Rebuild or evolve:** a fresh codebase, or a copy of v1 reworked page by
-   page.
-2. **Stack:** keep Node/Express/EJS/Tailwind/MongoDB (one team, one VPS, same
-   admin) or change it.
+1. **Rebuild or evolve:** *decided 11 Nov 2026 with the stack:* a fresh Astro
+   codebase, carrying over v1's proven logic (image pipeline, spam guards,
+   lead stats, redirects, SEO head) rather than copying v1 page by page.
+2. **Stack:** *decided 11 Nov 2026:* **Astro 6** with the Node adapter, under
+   PM2 behind nginx on the same VPS; MongoDB and Tailwind 4 stay. v1's Express
+   admin can be mounted alongside if it helps. Open to adjustment as we build.
 3. **Data:** v2 develops against its own database (never `londonlhd`, the live
    one); how cars, photos and leads move over at the switch.
 4. **Scope of the first release:** which pages change first (homepage, /cars,
@@ -63,3 +65,14 @@ London LHD Centre is the first brand, not part of the code:
 - URLs: v1's URLs (/cars, /cars/<make>, /cars/<car>, /sell-your-car and the
   legacy 301s) are indexed by Google. Keep them, or redirect every one.
 - Typical stock is about 20 cars: one /cars page, no pagination.
+
+## Photos (direction agreed 11 Nov 2026, adjustable as we go)
+
+- **Show the whole car:** the client prefers seeing the actual photo with as
+  little cropped as possible, especially on phones.
+- **Never crop when encoding:** sharp keeps every upload whole (fitted inside
+  a maximum size, AVIF plus a JPG fallback, encoded in the background after
+  upload). Any crop happens only on the page, in CSS, so it can be changed
+  later without reprocessing a single photo.
+- **Gallery:** a native scroll strip on the car page and PhotoSwipe 5 for full
+  screen; no lightGallery (GPLv3) or Swiper.
