@@ -10,7 +10,8 @@ live site is v1 in `C:\Users\lhdca\Projects\londonlhd` and its own
 - **Customer data:** leads, subscribers and the legacy mailing list stay out of
   this repo and out of output.
 - **Git:** stage only the files you changed (never `git add -A`); commit or
-  push only when the user says so. No GitHub remote yet.
+  push only when the user says so. GitHub: https://github.com/jmldn1/londonlhdv2
+  (`master`).
 - **Copy:** "left hand drive" with no hyphens; no full stops on headings; only
   client-confirmed facts.
 - Decisions in `BRIEF.md` under "Decisions to make" are the user's. Ask before
