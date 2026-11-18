@@ -1,0 +1,144 @@
+---
+import "../styles/global.css";
+import { brand, brandCss } from "../brands/index.ts";
+
+// Every brand's @font-face rules are bundled; a browser only downloads the
+// files of fonts the page actually uses, so other brands' fonts cost nothing.
+const fontModules = import.meta.glob<{ preload: string[] }>("../brands/fonts/*.ts", { eager: true });
+const preloadFonts = fontModules[`../brands/fonts/${brand.id}.ts`]?.preload ?? [];
+
+// A plain square icon from the brand: its accent colour and first letter.
+const icon =
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="${brand.colors.light.accent}"/>` +
+      `<text x="16" y="23" font-family="Arial,sans-serif" font-weight="700" font-size="20" text-anchor="middle" fill="${brand.colors.light.accentInk}">${brand.logo.top.charAt(0)}</text></svg>`,
+  );
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description } = Astro.props;
+const path = Astro.url.pathname;
+const sales = brand.contact.phones[0];
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title} | {brand.name}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="icon" href={icon} />
+    {preloadFonts.map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
+    <style is:inline set:html={brandCss()}></style>
+  </head>
+  <body>
+    <header class="site-head">
+      <div class="wrap bar">
+        <a class="logo" href="/" aria-label={`${brand.name} home`}>
+          <span class="top">{brand.logo.top}</span>
+          <span class="bottom">{brand.logo.bottom}</span>
+        </a>
+        <nav aria-label="Main">
+          <a href="/cars" aria-current={path.startsWith("/cars") ? "page" : undefined}>Cars</a>
+          {sales && <a class="tel" href={`tel:${sales.tel}`}>{sales.display}</a>}
+        </nav>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="site-foot">
+      <div class="wrap cols">
+        <div>
+          <div class="eyebrow">{brand.name}</div>
+          <p>{brand.contact.address}</p>
+          <p>{brand.contact.hours}{brand.contact.viewings && <>. {brand.contact.viewings}</>}</p>
+        </div>
+        <ul>
+          {brand.contact.phones.map((p) => (
+            <li>{p.label}: <a href={`tel:${p.tel}`}>{p.display}</a></li>
+          ))}
+          <li><a href={`mailto:${brand.contact.email}`}>{brand.contact.email}</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-head {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 64px;
+  }
+  .logo {
+    display: grid;
+    line-height: 1;
+    text-decoration: none;
+    color: var(--color-fg);
+  }
+  .logo .top {
+    font: 700 26px/0.95 var(--font-display);
+    letter-spacing: 0.06em;
+    color: var(--color-accent);
+  }
+  .logo .bottom {
+    font: 600 11px/1.3 var(--font-display);
+    letter-spacing: 0.14em;
+  }
+  nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    font-weight: 600;
+  }
+  nav a {
+    color: var(--color-fg);
+    text-decoration: none;
+    padding-block: 8px;
+    border-bottom: 2px solid transparent;
+  }
+  nav a[aria-current="page"] {
+    border-color: var(--color-accent);
+  }
+  nav .tel {
+    font-variant-numeric: tabular-nums;
+  }
+  .site-foot {
+    margin-top: 64px;
+    border-top: 1px solid var(--color-line);
+    background: var(--color-surface);
+    color: var(--color-muted);
+    font-size: 15px;
+  }
+  .cols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 48px;
+    justify-content: space-between;
+    padding-block: 32px calc(32px + env(safe-area-inset-bottom, 0px));
+  }
+  .cols p,
+  .cols ul {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cols a {
+    color: var(--color-fg);
+  }
+  /* Room to tap each link on a phone. */
+  .cols li {
+    padding-block: 6px;
+  }
+</style>

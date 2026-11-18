@@ -1,0 +1,195 @@
+---
+import Base from "../../layouts/Base.astro";
+import CarCard from "../../components/CarCard.astro";
+import { brand } from "../../brands/index.ts";
+import { listCars } from "../../lib/cars.ts";
+
+const cars = await listCars();
+
+// How photos sit in the card frame comes from the brand. While we're still
+// choosing, ?fit=contain|cover overrides it and the dev build shows a switch.
+const q = Astro.url.searchParams.get("fit");
+const fit = q === "cover" || q === "contain" ? q : brand.cardPhoto.fit;
+const showSwitch = import.meta.env.DEV || q !== null;
+---
+
+<Base title={brand.copy.carsTitle} description={brand.copy.carsIntro}>
+  <main class="wrap">
+    <header class="head">
+      <h1>{brand.copy.carsTitle}</h1>
+      <p>{brand.copy.carsIntro}</p>
+    </header>
+
+    {showSwitch && (
+      <div class="switch" role="group" aria-label="Photo framing (for choosing)">
+        <span>Card photos:</span>
+        <a href="?fit=contain" aria-current={fit === "contain" ? "true" : undefined}>Whole photo</a>
+        <a href="?fit=cover" aria-current={fit === "cover" ? "true" : undefined}>Fill the frame</a>
+      </div>
+    )}
+
+    {cars.length ? (
+      <div class="grid">
+        {cars.map((car, i) => <CarCard car={car} fit={fit} priority={i === 0} eager={i < 4} />)}
+      </div>
+    ) : (
+      <p class="empty">{brand.copy.carsEmpty}</p>
+    )}
+  </main>
+
+  <dialog id="quick" aria-labelledby="quick-title">
+    <div class="q">
+      <div class="q-head">
+        <div>
+          <div class="eyebrow q-make"></div>
+          <h2 id="quick-title" class="q-model"></h2>
+          <p class="q-specs"></p>
+        </div>
+        <button class="btn q-close" type="button">Close</button>
+      </div>
+      <div class="q-strip" tabindex="0" aria-label="Photos"></div>
+      <p class="q-note"></p>
+      <p class="q-desc"></p>
+      <div class="q-foot">
+        <span class="q-price"></span>
+        <a class="btn btn-primary q-view" href="/cars">View car</a>
+      </div>
+    </div>
+  </dialog>
+</Base>
+
+<script>
+  import "../../scripts/quick-look.ts";
+</script>
+
+<style>
+  .head {
+    padding-block: 32px 20px;
+    display: grid;
+    gap: 6px;
+  }
+  h1 {
+    font: 700 clamp(30px, 5vw, 44px)/1.05 var(--font-display);
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+  .head p {
+    margin: 0;
+    color: var(--color-muted);
+    max-width: 62ch;
+  }
+  .switch {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--color-muted);
+  }
+  .switch a {
+    padding: 6px 10px;
+    border: 1px solid var(--color-line);
+    color: var(--color-fg);
+    text-decoration: none;
+    background: var(--color-surface);
+  }
+  .switch a[aria-current] {
+    border-color: var(--color-accent);
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .empty {
+    color: var(--color-muted);
+  }
+
+  /* Quick look: the sold-cars pop-up's look, with whole photos. */
+  dialog {
+    /* Tailwind's reset zeroes margins; auto centres the dialog again. */
+    margin: auto;
+    border: 0;
+    padding: 0;
+    width: min(1120px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    background: var(--color-surface);
+    color: var(--color-fg);
+  }
+  dialog::backdrop {
+    background: rgb(6 10 18 / 0.7);
+  }
+  .q {
+    display: grid;
+    gap: 14px;
+    padding: 20px;
+  }
+  .q-head {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: start;
+  }
+  .q-model {
+    font: 700 clamp(22px, 3vw, 28px)/1.1 var(--font-display);
+    margin: 4px 0 0;
+    overflow-wrap: anywhere;
+  }
+  .q-specs {
+    margin: 4px 0 0;
+    color: var(--color-muted);
+    font-size: 15px;
+  }
+  /* Photos at their own shape, side by side, swiped or scrolled natively. */
+  .q-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+  .q-strip :global(picture) {
+    flex: none;
+    scroll-snap-align: start;
+  }
+  /* Each photo keeps its own shape: as large as fits both the height limit
+     and the panel's width (100vw less the dialog's margin and padding). */
+  .q-strip :global(img) {
+    display: block;
+    width: auto;
+    height: auto;
+    max-height: min(360px, 46dvh);
+    max-width: calc(100vw - 72px);
+    background: center / cover no-repeat;
+  }
+  .q-note {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+  .q-desc {
+    margin: 0;
+    font-size: 15px;
+    color: var(--color-muted);
+    max-width: 75ch;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .q-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid var(--color-line);
+    padding-top: 14px;
+  }
+  .q-price {
+    font: 700 24px/1 var(--font-display);
+  }
+</style>

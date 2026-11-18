@@ -1,0 +1,74 @@
+---
+// One car photo as <picture>: AVIF at every width, JPG as the fallback.
+// The photo itself is always whole; `fit` only decides how it sits in a
+// fixed frame (set the frame's shape on the parent):
+//   "contain"  the whole photo, with bands where its shape differs
+//   "cover"    fills the frame, trimming the edges
+//   "natural"  no frame: the photo at its own shape
+import type { Photo } from "../lib/photos.ts";
+import { srcset, pick } from "../lib/photos.ts";
+
+interface Props {
+  photo: Photo;
+  /** The sizes attribute: how wide the photo shows at each screen width. */
+  sizes: string;
+  fit?: "contain" | "cover" | "natural";
+  alt?: string;
+  eager?: boolean;
+  /** The page's main image: fetchpriority="high". */
+  priority?: boolean;
+  class?: string;
+  style?: string;
+}
+const { photo, sizes, fit = "contain", alt = "", eager = false, priority = false, class: cls, style } = Astro.props;
+const fallback = pick(photo.jpg, 800);
+---
+
+<picture class:list={["car-photo", `fit-${fit}`, cls]} style={style}>
+  <source type="image/avif" srcset={srcset(photo.avif)} sizes={sizes} />
+  <img
+    src={fallback.url}
+    srcset={srcset(photo.jpg)}
+    sizes={sizes}
+    width={photo.width}
+    height={photo.height}
+    alt={alt}
+    loading={eager || priority ? "eager" : "lazy"}
+    fetchpriority={priority ? "high" : undefined}
+    decoding="async"
+    style={`background-image:url(${photo.placeholder})`}
+  />
+</picture>
+
+<style>
+  .car-photo {
+    display: block;
+  }
+  img {
+    display: block;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .fit-contain,
+  .fit-cover {
+    height: 100%;
+  }
+  .fit-contain img,
+  .fit-cover img {
+    height: 100%;
+  }
+  .fit-contain img {
+    object-fit: contain;
+    /* The blurred preview sits exactly where the photo will. */
+    background-size: contain;
+  }
+  .fit-cover img {
+    object-fit: cover;
+    background-size: cover;
+  }
+  .fit-natural img {
+    height: auto;
+    background-size: cover;
+  }
+</style>

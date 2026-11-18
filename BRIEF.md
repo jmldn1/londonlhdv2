@@ -8,6 +8,12 @@ live (since 10 November 2026) and keeps running from
 **Timing:** v2 might replace v1, in whole or in part, in the new year (2027).
 That isn't a commitment; v2 has to stand on its own either way.
 
+**A copy for LHD Cars Wanted (18 Nov 2026):** lhdcarswanted.co.uk is being
+rebuilt in its own project, `C:\Users\lhdca\Projects\lhdcarswanted`, which
+started as a copy of this code. This project stays London LHD Centre's. When a
+shared part (photo pipeline, /cars, car page, brand system, layout) changes
+here, say so, so the user can decide whether to carry it across.
+
 ## Built to rebrand
 
 London LHD Centre is the first brand, not part of the code:

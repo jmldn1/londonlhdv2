@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* Brand tokens (set per brand in src/brands, as --brand-*) become Tailwind's
+   theme: bg-surface, text-muted, border-line, font-display and so on. */
+@theme inline {
+  --color-bg: var(--brand-bg);
+  --color-surface: var(--brand-surface);
+  --color-fg: var(--brand-fg);
+  --color-muted: var(--brand-muted);
+  --color-line: var(--brand-line);
+  --color-accent: var(--brand-accent);
+  --color-accent-ink: var(--brand-accent-ink);
+  --color-picked: var(--brand-picked);
+  --font-display: var(--brand-font-display);
+  --font-body: var(--brand-font-body);
+}
+
+/* Page to page (e.g. /cars to a car) cross-fades, and a car's photo moves
+   into place, in browsers that support it. No script involved. */
+@view-transition {
+  navigation: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font: 16px/1.5 var(--font-body);
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .wrap {
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+  }
+  .eyebrow {
+    font: 600 12px/1 var(--font-body);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font: 600 15px/1 var(--font-body);
+    padding: 11px 16px;
+    border: 1px solid var(--color-fg);
+    background: transparent;
+    color: var(--color-fg);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+}

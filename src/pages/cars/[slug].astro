@@ -1,0 +1,163 @@
+---
+// A car's page (first cut). Photos are shown whole in a native swipe strip;
+// full-screen viewing (PhotoSwipe) and the enquiry form come next.
+import Base from "../../layouts/Base.astro";
+import CarPhoto from "../../components/CarPhoto.astro";
+import { brand } from "../../brands/index.ts";
+import { getCar, specsLine, priceLabel } from "../../lib/cars.ts";
+
+const car = await getCar(Astro.params.slug ?? "");
+if (!car) return new Response(null, { status: 404 });
+
+const first = car.photos[0];
+// The strip takes the shape of the first photo (most of a car's photos share
+// it); any photo of another shape is shown whole inside that frame.
+const ratio = first ? `${first.width} / ${first.height}` : "3 / 2";
+const sales = brand.contact.phones[0];
+---
+
+<Base title={`${car.make} ${car.model}`} description={specsLine(car)}>
+  <main class="wrap page">
+    <a class="back" href="/cars">All cars</a>
+
+    <div class="layout">
+      <section class="gallery" aria-label="Photos">
+        <div class="strip" style={`aspect-ratio:${ratio}`} tabindex="0">
+          {car.photos.map((p, i) => (
+            <figure class="slide" id={`photo-${i + 1}`}>
+              <CarPhoto
+                photo={p}
+                fit="contain"
+                priority={i === 0}
+                alt={`${car.make} ${car.model}, photo ${i + 1} of ${car.photos.length}`}
+                sizes="(min-width: 1240px) 780px, (min-width: 960px) 62vw, calc(100vw - 32px)"
+                style={i === 0 ? `view-transition-name: car-${car.id}` : undefined}
+              />
+            </figure>
+          ))}
+        </div>
+        {car.photos.length > 1 && (
+          <div class="controls">
+            <button class="btn prev" type="button" aria-label="Previous photo">‹</button>
+            <span class="counter" aria-live="polite"><span class="n">1</span> of {car.photos.length}</span>
+            <button class="btn next" type="button" aria-label="Next photo">›</button>
+          </div>
+        )}
+      </section>
+
+      <aside class="facts">
+        <div class="eyebrow">{car.make}</div>
+        <h1>{car.model}</h1>
+        <p class="specs">{specsLine(car)}</p>
+        <p class="price">{priceLabel(car)}</p>
+        {sales && <a class="btn btn-primary call" href={`tel:${sales.tel}`}>Call {sales.display}</a>}
+        <p class="desc">{car.description}</p>
+      </aside>
+    </div>
+  </main>
+</Base>
+
+<script>
+  // Arrows and the counter for the native strip (swipe and scroll need no script).
+  const strip = document.querySelector<HTMLElement>(".strip");
+  const n = document.querySelector(".counter .n");
+  if (strip) {
+    const step = (dir: number) => strip.scrollBy({ left: dir * strip.clientWidth, behavior: "smooth" });
+    document.querySelector(".prev")?.addEventListener("click", () => step(-1));
+    document.querySelector(".next")?.addEventListener("click", () => step(1));
+    strip.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault();
+        step(e.key === "ArrowLeft" ? -1 : 1);
+      }
+    });
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const en of entries) {
+          if (en.isIntersecting && n) n.textContent = en.target.id.replace("photo-", "");
+        }
+      },
+      { root: strip, threshold: 0.6 },
+    );
+    strip.querySelectorAll(".slide").forEach((s) => io.observe(s));
+  }
+</script>
+
+<style>
+  .page {
+    padding-top: 20px;
+  }
+  .back {
+    color: var(--color-muted);
+    font-size: 15px;
+  }
+  .layout {
+    display: grid;
+    gap: 24px;
+    margin-top: 12px;
+  }
+  @media (min-width: 960px) {
+    .layout {
+      grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+      align-items: start;
+    }
+  }
+  .strip {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    background: var(--color-line);
+  }
+  .strip::-webkit-scrollbar {
+    display: none;
+  }
+  .slide {
+    flex: 0 0 100%;
+    margin: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .controls .btn {
+    font-size: 22px;
+    padding: 6px 16px;
+    border-color: var(--color-line);
+    background: var(--color-surface);
+  }
+  .counter {
+    color: var(--color-muted);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .facts {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+  h1 {
+    font: 700 clamp(28px, 4vw, 38px)/1.08 var(--font-display);
+    margin: 2px 0 0;
+    overflow-wrap: anywhere;
+  }
+  .specs {
+    margin: 0;
+    color: var(--color-muted);
+  }
+  .price {
+    font: 700 30px/1 var(--font-display);
+    margin: 8px 0;
+  }
+  .desc {
+    color: var(--color-muted);
+    margin: 12px 0 0;
+    overflow-wrap: anywhere;
+  }
+</style>
