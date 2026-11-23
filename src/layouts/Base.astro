@@ -34,6 +34,7 @@ const sales = brand.contact.phones[0];
     <link rel="icon" href={icon} />
     {preloadFonts.map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
     <style is:inline set:html={brandCss()}></style>
+    <script is:inline>document.documentElement.classList.add("js");</script>
   </head>
   <body>
     <header class="site-head">
